@@ -63,6 +63,41 @@
 #
 #-------------------------------------------------------------------------
 import json, time, pika, sys
+import stomp
+
+class MyListener(object):
+  
+  def __init__(self, conn):
+    self.conn = conn
+    self.count = 0
+    self.start = time.time()
+  
+  def on_error(self, message):
+    print('received an error %s' % message)
+
+  def on_message(self, message):
+    #print(message.body,'---------')
+    data = json.loads(message.body)
+    print("ADVERTENCIA!!!")
+    print(f"[{data['wearable']['date']}]: asistir al paciente {data['name']} {data['last_name']}... con wearable {data['wearable']['id']}")
+    print(f"ssn: {data['ssn']}, edad: {data['age']}, temperatura: {round(data['wearable']['temperature'], 1)}, ritmo cardiaco: {data['wearable']['heart_rate']}, presión arterial: {data['wearable']['blood_pressure']}, dispositivo: {data['wearable']['id']}")
+    print()
+
+    if message == "SHUTDOWN":
+    
+      diff = time.time() - self.start
+      print("Received %s in %f seconds" % (self.count, diff))
+      self.conn.disconnect()
+      sys.exit(0)
+      
+    else:
+      if self.count==0:
+        self.start = time.time()
+        
+      self.count += 1
+      if self.count % 1000 == 0:
+         print("Received %s messages." % self.count)
+
 
 class Monitor:
 
@@ -72,10 +107,25 @@ class Monitor:
     def suscribe(self):
         print("Inicio de monitoreo de signos vitales...")
         print()
-        self.consume(queue=self.topic, callback=self.callback)
+        
+
+        conn = stomp.Connection()
+        conn.set_listener('', MyListener(conn))
+        #conn.start()
+        conn.connect('admin', 'password', wait=True)        
+        conn.subscribe(destination=self.topic, id=1, ack='auto')
+
+        print("Waiting for messages...")
+        while 1: 
+            time.sleep(10)
+
+        
+        
+        #self.consume(queue=self.topic, callback=self.callback)
 
     def consume(self, queue, callback):
         try:
+
             connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
             channel = connection.channel()
             channel.queue_declare(queue=queue, durable=True)
