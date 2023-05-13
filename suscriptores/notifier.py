@@ -65,6 +65,42 @@
 #-------------------------------------------------------------------------
 import json, time, pika, sys
 import telepot
+import stomp
+
+class MyListener(object):
+  
+  def __init__(self, conn):
+    self.conn = conn
+    self.count = 0
+    self.start = time.time()
+  
+  def on_error(self, message):
+    print('received an error %s' % message)
+
+  def on_message(self, message):
+    print("enviando notificación de signos vitales...")
+    if notifier.token and notifier.chat_id:
+        data = json.loads(message.body)
+        message = f"ADVERTENCIA!!!\n[{data['wearable']['date']}]: asistir al paciente {data['name']} {data['last_name']}...\nssn: {data['ssn']}, edad: {data['age']}, temperatura: {round(data['wearable']['temperature'], 1)}, ritmo cardiaco: {data['wearable']['heart_rate']}, presión arterial: {data['wearable']['blood_pressure']}, dispositivo: {data['wearable']['id']}"
+        bot = telepot.Bot(self.token)
+        bot.sendMessage(self.chat_id, message)
+    time.sleep(1)
+
+    #para cuando quieramos cerrar la conexion
+    if message == "SHUTDOWN":
+    
+      diff = time.time() - self.start
+      print("Recibido %s en %f Segundos" % (self.count, diff))
+      self.conn.disconnect()
+      sys.exit(0)
+      
+    else:
+      if self.count==0:
+        self.start = time.time()
+        
+      self.count += 1
+      if self.count % 1000 == 0:
+         print("Recibido %s mensajes." % self.count)
 
 class Notifier:
 
@@ -76,29 +112,17 @@ class Notifier:
     def suscribe(self):
         print("Inicio de gestión de notificaciones...")
         print()
-        self.consume(queue=self.topic, callback=self.callback)
+        
+        conn = stomp.Connection()#realizamos la conexion con activeMQ
+        conn.set_listener('', MyListener(conn))#creamos el escucha
+        conn.connect('admin', 'password', wait=True)#pasamos el usuario y la contraseña para conectarnos y nos conectamos     
+        conn.subscribe(destination=self.topic, id=1, ack='auto')#agregamos un suscriptor
 
-    def consume(self, queue, callback):
-        try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-            channel = connection.channel()
-            channel.queue_declare(queue=queue, durable=True)
-            channel.basic_qos(prefetch_count=1)
-            channel.basic_consume(on_message_callback=callback, queue=queue)
-            channel.start_consuming()
-        except (KeyboardInterrupt, SystemExit):
-            channel.close()
-            sys.exit("Conexión finalizada...")
+        print("Esperando mensajes...")
+        while 1: 
+            time.sleep(10)
 
-    def callback(self, ch, method, properties, body):
-        print("enviando notificación de signos vitales...")
-        if self.token and self.chat_id:
-            data = json.loads(body.decode("utf-8"))
-            message = f"ADVERTENCIA!!!\n[{data['wearable']['date']}]: asistir al paciente {data['name']} {data['last_name']}...\nssn: {data['ssn']}, edad: {data['age']}, temperatura: {round(data['wearable']['temperature'], 1)}, ritmo cardiaco: {data['wearable']['heart_rate']}, presión arterial: {data['wearable']['blood_pressure']}, dispositivo: {data['wearable']['id']}"
-            bot = telepot.Bot(self.token)
-            bot.sendMessage(self.chat_id, message)
-        time.sleep(1)
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 if __name__ == '__main__':
     notifier = Notifier()
