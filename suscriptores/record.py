@@ -63,6 +63,43 @@
 #
 #-------------------------------------------------------------------------
 import json, time, pika, sys, os
+import stomp
+
+class MyListener(object):
+  
+  def __init__(self, conn):
+    self.conn = conn
+    self.count = 0
+    self.start = time.time()
+  
+  def on_error(self, message):
+    print('received an error %s' % message)
+
+  def on_message(self, message):
+    print("datos recibidos, actualizando expediente del paciente...")
+    data = json.loads(message.body)
+    record_file = open (f"./records/{data['ssn']}.txt",'a')
+    record_file.write(f"\n[{data['wearable']['date']}]: {data['name']} {data['last_name']}... ssn: {data['ssn']}, edad: {data['age']}, temperatura: {round(data['wearable']['temperature'], 1)}, ritmo cardiaco: {data['wearable']['heart_rate']}, presión arterial: {data['wearable']['blood_pressure']}, dispositivo: {data['wearable']['id']}")
+    record_file.close()
+    time.sleep(1)
+
+
+    #para cuando quieramos cerrar la conexion
+    if message == "SHUTDOWN":
+    
+      diff = time.time() - self.start
+      print("Recibido %s en %f Segundos" % (self.count, diff))
+      self.conn.disconnect()
+      sys.exit(0)
+      
+    else:
+      if self.count==0:
+        self.start = time.time()
+        
+      self.count += 1
+      if self.count % 1000 == 0:
+         print("Recibido %s mensajes." % self.count)
+
 
 class Record:
 
@@ -76,29 +113,17 @@ class Record:
     def suscribe(self):
         print("Esperando datos del paciente para actualizar expediente...")
         print()
-        self.consume(queue=self.topic, callback=self.callback)
+        conn = stomp.Connection()#realizamos la conexion con activeMQ
+        conn.set_listener('', MyListener(conn))#creamos el escucha
+        conn.connect('admin', 'password', wait=True)#pasamos el usuario y la contraseña para conectarnos y nos conectamos     
+        conn.subscribe(destination=self.topic, id=1, ack='auto')#agregamos un suscriptor
 
-    def consume(self, queue, callback):
-        try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-            channel = connection.channel()
-            channel.queue_declare(queue=queue, durable=True)
-            channel.basic_qos(prefetch_count=1)
-            channel.basic_consume(on_message_callback=callback, queue=queue)
-            channel.start_consuming()
-        except (KeyboardInterrupt, SystemExit):
-            channel.close()
-            sys.exit("Conexión finalizada...")
+        print("Esperando mensajes...")
+        while 1: 
+            time.sleep(10)
+        
 
-    def callback(self, ch, method, properties, body):
-        print("datos recibidos, actualizando expediente del paciente...")
-        data = json.loads(body.decode("utf-8"))
-        record_file = open (f"./records/{data['ssn']}.txt",'a')
-        record_file.write(f"\n[{data['wearable']['date']}]: {data['name']} {data['last_name']}... ssn: {data['ssn']}, edad: {data['age']}, temperatura: {round(data['wearable']['temperature'], 1)}, ritmo cardiaco: {data['wearable']['heart_rate']}, presión arterial: {data['wearable']['blood_pressure']}, dispositivo: {data['wearable']['id']}")
-        record_file.close()
-        time.sleep(1)
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-
+        
 if __name__ == '__main__':
     record = Record()
     record.suscribe()
