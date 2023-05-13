@@ -76,17 +76,17 @@ class MyListener(object):
     print('received an error %s' % message)
 
   def on_message(self, message):
-    #print(message.body,'---------')
     data = json.loads(message.body)
     print("ADVERTENCIA!!!")
     print(f"[{data['wearable']['date']}]: asistir al paciente {data['name']} {data['last_name']}... con wearable {data['wearable']['id']}")
     print(f"ssn: {data['ssn']}, edad: {data['age']}, temperatura: {round(data['wearable']['temperature'], 1)}, ritmo cardiaco: {data['wearable']['heart_rate']}, presión arterial: {data['wearable']['blood_pressure']}, dispositivo: {data['wearable']['id']}")
     print()
 
+    #para cuando quieramos cerrar la conexion
     if message == "SHUTDOWN":
     
       diff = time.time() - self.start
-      print("Received %s in %f seconds" % (self.count, diff))
+      print("Recibido %s en %f Segundos" % (self.count, diff))
       self.conn.disconnect()
       sys.exit(0)
       
@@ -96,7 +96,7 @@ class MyListener(object):
         
       self.count += 1
       if self.count % 1000 == 0:
-         print("Received %s messages." % self.count)
+         print("Recibido %s mensajes." % self.count)
 
 
 class Monitor:
@@ -108,42 +108,14 @@ class Monitor:
         print("Inicio de monitoreo de signos vitales...")
         print()
         
+        conn = stomp.Connection()#realizamos la conexion con activeMQ
+        conn.set_listener('', MyListener(conn))#creamos el escucha
+        conn.connect('admin', 'password', wait=True)#pasamos el usuario y la contraseña para conectarnos y nos conectamos     
+        conn.subscribe(destination=self.topic, id=1, ack='auto')#agregamos un suscriptor
 
-        conn = stomp.Connection()
-        conn.set_listener('', MyListener(conn))
-        #conn.start()
-        conn.connect('admin', 'password', wait=True)        
-        conn.subscribe(destination=self.topic, id=1, ack='auto')
-
-        print("Waiting for messages...")
+        print("Esperando mensajes...")
         while 1: 
             time.sleep(10)
-
-        
-        
-        #self.consume(queue=self.topic, callback=self.callback)
-
-    def consume(self, queue, callback):
-        try:
-
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-            channel = connection.channel()
-            channel.queue_declare(queue=queue, durable=True)
-            channel.basic_qos(prefetch_count=1)
-            channel.basic_consume(on_message_callback=callback, queue=queue)
-            channel.start_consuming()
-        except (KeyboardInterrupt, SystemExit):
-            channel.close()
-            sys.exit("Conexión finalizada...")
-
-    def callback(self, ch, method, properties, body):
-        data = json.loads(body.decode("utf-8"))
-        print("ADVERTENCIA!!!")
-        print(f"[{data['wearable']['date']}]: asistir al paciente {data['name']} {data['last_name']}... con wearable {data['wearable']['id']}")
-        print(f"ssn: {data['ssn']}, edad: {data['age']}, temperatura: {round(data['wearable']['temperature'], 1)}, ritmo cardiaco: {data['wearable']['heart_rate']}, presión arterial: {data['wearable']['blood_pressure']}, dispositivo: {data['wearable']['id']}")
-        print()
-        time.sleep(1)
-        ch.basic_ack(delivery_tag=method.delivery_tag)
 
 if __name__ == '__main__':
     monitor = Monitor()
