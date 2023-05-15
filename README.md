@@ -10,7 +10,7 @@ En la siguiente figura se muestra el diseño de la propuesta de solución del de
 
 ![Vista de contenedores del SMAM](docs/context-view.png)
 
-Apache ActiveMQ es un software de mensajería de código abierto que permite la comunicación asíncrona entre aplicaciones distribuidas. Se basa en un modelo de publicación/suscripción y colas de mensajes para la entrega de mensajes entre aplicaciones. Los productores de mensajes publican mensajes en un destino, como una cola o un tópico, y los consumidores de mensajes reciben y procesan esos mensajes. ActiveMQ admite varios protocolos de red, como TCP, SSL y HTTP, lo que permite la comunicación entre aplicaciones a través de diferentes redes y protocolos.
+Apache ActiveMQ es un software de mensajería de código abierto que permite la comunicación asíncrona entre aplicaciones distribuidas. Se basa en un modelo de publicación/suscripción y colas de mensajes para la entrega de mensajes entre aplicaciones. Los productores de mensajes publican mensajes en un destino, como una cola o un tópico, y los consumidores de mensajes reciben y procesan esos mensajes. ActiveMQ admite varios protocolos de red, como TCP, SSL y HTTP, lo que permite la comunicación entre aplicaciones a través de diferentes redes y protocolos. En la siguiente figura se muestra La vista de módulos del SMAM.
 
 ![Vista de módulos del SMAM](docs/Module-View.jpg)
 
