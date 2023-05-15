@@ -88,22 +88,24 @@ Este repositorio contiene los siguientes directorios y archivos:
 
    Paquete | Versión | Descripción
    --------|---------|------------
-   pika   | 1.1.0   | Implementación del protocolo AMQP 0-9-1 y que incuye la extensión de RabbitMQ
+   stomp   | 1.1.0   | Implementación del protocolo OpenWire y que incuye la extensión de ActiveMQ
    Faker  | 13.3.0  | Generador de datos falsos
    telepot| 12.7    | Api de Telegram
 
    *__Nota__: También puedes instalar estos prerrequisitos manualmente ejecutando los siguientes comandos:*   
-   > pip3 install pika== 1.1.0
+   > pip3 install stomp.py==8.1.0
    > pip3 install Faker==13.3.0
    > pip3 install telepot==12.7
 
-- Instalamos RabbitMQ. La manera recomendada para implementar una instancia de RabbitMQ es utilizando [Docker](https://www.docker.com/), para instalarlo puedes seguir las instrucciones para cada sistema operativo haciendo clic [aquí](https://docs.docker.com/install/). Una vez instalado docker podemos ejecutar el siguiente comando:
+- Instalamos ActiveMQ. La manera recomendada para implementar una instancia de ActiveMQ es utilizando [Docker](https://www.docker.com/), para instalarlo puedes seguir las instrucciones para cada sistema operativo haciendo clic [aquí](https://docs.docker.com/install/). Una vez instalado docker podemos ejecutar el siguiente comando:
 
     ```shell
-    $ docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+    $ docker pull rmohr/activemq
+
+    $ docker run -p 61613:61613 -p 8161:8161 rmohr/activemq
     ```
 
-    Este comando correrá un contenedor de docker con la imagen de RabbitMQ, el cual seguirá corriendo hasta que sea detenido explícitamente.
+    Este comando correrá un contenedor de docker con la imagen de ActiveMQ, el cual seguirá corriendo hasta que sea detenido explícitamente.
 
 ## Ejecución
 
@@ -166,6 +168,12 @@ Sigue las siguientes instrucciones para ejecutar los diferentes componentes del 
 2.2.0 - Marzo 2022
 
 ## Autores
+
+* **Paul Santana**
+* **Osmar Ortiz**
+* **Carlos Olvera**
+* **Roberto Pacheco**
+* **Cristian Alvarado**
 
 * **Perla Velasco**
 * **Yonathan Martínez**
