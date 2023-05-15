@@ -54,34 +54,34 @@ Este repositorio contiene los siguientes directorios y archivos:
 
 - Crear un ambiente virtual para manejar las dependencias ejecutando:
    ```shell
-   $ python3 -m venv venv
+   $ python3 -m venv entorno
    ```
 
    en Windows:
    ```shell
-   $ python3 -m venv venv
+   $ python3 -m venv entorno
    ```
 
    si no funciona el comando anterior, ejecutar el siguiente:
    ```shell
-   $ py -3 -m venv venv
+   $ py -3 -m venv entorno
    ```
 
    Esto creará una carpeta llamada "venv" que representa nuestro ambiente virtual y donde instalaremos todas las dependencias.
 
 - Activamos el ambiente virtual:
    ```shell
-   $ source venv/bin/activate
+   $ source entorno/bin/activate
    ```
 
    o en Windows:
    ```shell
-   $ venv\Scripts\activate
+   $ entorno\Scripts\activate
    ```
 
 - Instalamos las dependencias del sistema ejecutando:
    ```shell
-   (venv)$ pip3 install -r requirements.txt 
+   (entorno)$ pip3 install -r requirements.txt 
    ```
 
    Los paquetes que se instalarán son los siguientes:
