@@ -48,8 +48,8 @@ Este repositorio contiene los siguientes directorios y archivos:
 ## Prerrequisitos
 - Clonar el repositorio:
    ```shell
-   $ git clone https://gitlab.com/tareas-arquitectura-de-software-curso/publica-suscribe
-   $ cd publica-subscribe
+   $ git clone https://github.com/Spek7ro/Tarea_Publica-Suscribe.git
+   $ cd Tarea_Publica-Suscribe
    ```
 - Contar con python 3.8 o superior y pip3 (las pruebas fueron realizadas con la versión 3.8). Se recomienda utilizar [pyenv](https://github.com/pyenv/pyenv) como manejador de versiones de python; una vez instalado se pueden seguir los siguientes comandos para instalar la versión deseada de python, esto hay que realizarlo en la raíz del repositorio:
    ```shell
@@ -93,7 +93,7 @@ Este repositorio contiene los siguientes directorios y archivos:
 
    Paquete | Versión | Descripción
    --------|---------|------------
-   stomp   | 1.1.0   | Implementación del protocolo OpenWire y que incuye la extensión de ActiveMQ
+   stomp   | 8.1.0   | Implementación del protocolo OpenWire y que incuye la extensión de ActiveMQ
    Faker  | 13.3.0  | Generador de datos falsos
    telepot| 12.7    | Api de Telegram
 
@@ -170,7 +170,7 @@ Sigue las siguientes instrucciones para ejecutar los diferentes componentes del 
 
 ## Versión
 
-2.2.0 - Marzo 2022
+2.3.0 - Mayo 2023
 
 ## Autores
 
