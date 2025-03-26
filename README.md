@@ -174,13 +174,8 @@ Sigue las siguientes instrucciones para ejecutar los diferentes componentes del 
 
 ## Autores
 
+* **Cristian Alvarado**
 * **Paul Santana**
 * **Osmar Ortiz**
 * **Carlos Olvera**
 * **Roberto Pacheco**
-* **Cristian Alvarado**
-
-* **Perla Velasco**
-* **Yonathan Martínez**
-* **Sergio Salazar**
-* **Jorge Solis**
